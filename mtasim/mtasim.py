@@ -21,28 +21,33 @@ class Station:
         # i.e. 1 unit of trash arriving every five minutes at the BUSIEST stations
         self.trash_arrival_rate = (1.0/100000000) * annual_ridership
 
-        # self.fire_arrival_rate = [0.0, 0.0]
         self.fire_arrival_rate = 0.0
 
         # Units: minutes
-        # self.time = [0.0, 0.0]
         self.time = 0.0
 
-        # self.aggregate_trash = [0, 0]
         self.aggregate_trash = 0
 
-        # self.num_cleanings = [0, 0]
         self.num_cleanings = 0
 
         self.num_scheduled_cleanings = 0
 
-        # self.num_fires = [0, 0]
         self.num_fires = 0
 
-        # self.next_trash_arrival = [0.0, 0.0]
-        # self.next_fire_arrival = [0.0, 0.0]
         self.next_trash_arrival = 0.0
         self.next_fire_arrival = 0.0
+
+    def initialize_simulation(self):
+        self.time = 0.0
+
+        self.aggregate_trash = 0
+        self.num_cleanings = 0
+        self.num_scheduled_cleanings = 0
+        self.num_fires = 0
+
+        self.next_trash_arrival = random.expovariate(self.trash_arrival_rate)
+        self.next_fire_arrival = math.inf
+        self.next_scheduled_cleaning = self.cleaning_rate
 
     def print_state(self):
         print("--------------------------------")
@@ -75,19 +80,6 @@ class Station:
         self.next_trash_arrival = random.expovariate(self.trash_arrival_rate)
         self.next_fire_arrival = math.inf
 
-    def initialize_simulation(self):
-        self.time = 0.0
-
-        self.aggregate_trash = 0
-        self.num_cleanings = 0
-        self.num_scheduled_cleanings = 0
-        self.num_fires = 0
-
-        self.next_trash_arrival = random.expovariate(self.trash_arrival_rate)
-        self.next_fire_arrival = math.inf
-        self.next_scheduled_cleaning = self.cleaning_rate
-
-
     def simulate(self, end_time):
         # initialize start of simulation
         self.initialize_simulation()
@@ -118,18 +110,22 @@ class Station:
 print("Starting")
 # s1 = Station(40000000, 2, 6000, 30240)
 # s1 = Station(200000, 1, 6000, 30240)
-# s1 = Station(200000, 1, 6000, 250000)
-s1 = Station(40000000, 1, 6000, 60000)
+s1 = Station(20000000, 1, 6000, 60000)
+# s1 = Station(40000000, 1, 6000, 60000)
 num_reps = 50
 reps = []
 for i in range(num_reps):
     s1.simulate(525600)
     s1.print_state()
-    reps.append(s1.num_fires)
+    reps.append((s1.num_fires, s1.num_cleanings))
 print()
-print(reps)
-print(sum(reps)/len(reps))
-print(statistics.stdev(reps))
+print([x[0] for x in reps])
+print(sum([x[0] for x in reps])/len([x[0] for x in reps]))
+print(statistics.stdev([x[0] for x in reps]))
+
+print([x[1] for x in reps])
+print(sum([x[1] for x in reps])/len([x[1] for x in reps]))
+print(statistics.stdev([x[1] for x in reps]))
 
 
 

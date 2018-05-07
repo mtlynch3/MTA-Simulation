@@ -6,14 +6,11 @@ from collections import deque
 
 class Station:
 
-    def __init__(self, annual_ridership, num_track_beds, trash_threshold, cleaning_rate):
+    def __init__(self, annual_ridership, num_track_beds, trash_threshold):
         self.annual_ridership = annual_ridership
         self.num_track_beds = num_track_beds
 
         self.trash_threshold = trash_threshold
-
-        self.cleaning_rate = cleaning_rate
-        self.next_scheduled_cleaning = 0.0
 
         self.maintenance_delay = 0.0
 
@@ -21,39 +18,41 @@ class Station:
         # i.e. 1 unit of trash arriving every five minutes at the BUSIEST stations
         self.trash_arrival_rate = (1.0/100000000) * annual_ridership
 
-        # self.fire_arrival_rate = [0.0, 0.0]
         self.fire_arrival_rate = 0.0
 
         # Units: minutes
-        # self.time = [0.0, 0.0]
         self.time = 0.0
 
-        # self.aggregate_trash = [0, 0]
         self.aggregate_trash = 0
 
-        # self.num_cleanings = [0, 0]
         self.num_cleanings = 0
+        self.num_threshold_cleanings = 0
 
-        self.num_scheduled_cleanings = 0
-
-        # self.num_fires = [0, 0]
         self.num_fires = 0
 
-        # self.next_trash_arrival = [0.0, 0.0]
-        # self.next_fire_arrival = [0.0, 0.0]
         self.next_trash_arrival = 0.0
         self.next_fire_arrival = 0.0
+
+    def initialize_simulation(self):
+        self.time = 0.0
+
+        self.aggregate_trash = 0
+        self.num_cleanings = 0
+        self.num_threshold_cleanings = 0
+        self.num_fires = 0
+
+        self.next_trash_arrival = random.expovariate(self.trash_arrival_rate)
+        self.next_fire_arrival = math.inf
 
     def print_state(self):
         print("--------------------------------")
         print("Current Time: " + str(self.time))
         print("Aggregate Trash: " + str(self.aggregate_trash))
         print("Time until next trash: " + str(self.next_trash_arrival))
-        print("Time until next cleaning: " + str(self.next_scheduled_cleaning))
         print("Time until next fire: " + str(self.next_fire_arrival))
         print("\nFire arrival rate: " + str(self.fire_arrival_rate))
         print("\nNumber of cleanings to date:" + str(self.num_cleanings))
-        print("Number of scheduled cleanings to date:" + str(self.num_scheduled_cleanings))
+        print("Number of threshold cleanings to date:" + str(self.num_threshold_cleanings))
         print("Number of fires to date:" + str(self.num_fires))
         print("--------------------------------\n\n")
 
@@ -70,42 +69,25 @@ class Station:
         # Should depend on if fire == True
         # increment self.time by amount of time for cleaning / fire repair
         if not fire:
-            self.num_scheduled_cleanings = self.num_scheduled_cleanings + 1
-            self.next_scheduled_cleaning = self.cleaning_rate
+            self.num_threshold_cleanings = self.num_threshold_cleanings + 1
         self.next_trash_arrival = random.expovariate(self.trash_arrival_rate)
         self.next_fire_arrival = math.inf
-
-    def initialize_simulation(self):
-        self.time = 0.0
-
-        self.aggregate_trash = 0
-        self.num_cleanings = 0
-        self.num_scheduled_cleanings = 0
-        self.num_fires = 0
-
-        self.next_trash_arrival = random.expovariate(self.trash_arrival_rate)
-        self.next_fire_arrival = math.inf
-        self.next_scheduled_cleaning = self.cleaning_rate
-
 
     def simulate(self, end_time):
         # initialize start of simulation
         self.initialize_simulation()
 
-        while (self.time < end_time):
-            if self.next_trash_arrival == min(self.next_scheduled_cleaning, self.next_fire_arrival, self.next_trash_arrival):
+        while self.time < end_time:
+            if self.next_trash_arrival == min(self.next_fire_arrival, self.next_trash_arrival):
                 # print("********* Trash Arrives")
                 time_elapsed = self.next_trash_arrival
+                self.time = self.time + time_elapsed
                 self.aggregate_trash = self.aggregate_trash + 1
-                self.next_scheduled_cleaning = self.next_scheduled_cleaning - time_elapsed
-                self.next_trash_arrival = random.expovariate(self.trash_arrival_rate)
-                self.time = self.time + time_elapsed
-                self.recalculate_next_fire_arrival()
-            elif self.next_scheduled_cleaning == min(self.next_scheduled_cleaning, self.next_fire_arrival, self.next_trash_arrival):
-                # print("********* Scheduled Cleaning")
-                time_elapsed = self.next_scheduled_cleaning
-                self.time = self.time + time_elapsed
-                self.clean(False)
+                if self.aggregate_trash > self.trash_threshold:
+                    self.clean(False)
+                else:
+                    self.next_trash_arrival = random.expovariate(self.trash_arrival_rate)
+                    self.recalculate_next_fire_arrival()
             else:  # next_fire_arrival is the min
                 # self.print_state()
                 # print("********* FIRE!!!")
@@ -116,20 +98,25 @@ class Station:
 
 
 print("Starting")
-# s1 = Station(40000000, 2, 6000, 30240)
-# s1 = Station(200000, 1, 6000, 30240)
-# s1 = Station(200000, 1, 6000, 250000)
-s1 = Station(40000000, 1, 6000, 60000)
+threshold = 10000
+# s1 = Station(40000000, 2, threshold)
+# s1 = Station(200000, 1, threshold)
+s1 = Station(20000000, 1, threshold)
+# s1 = Station(40000000, 1, threshold)
 num_reps = 50
 reps = []
 for i in range(num_reps):
     s1.simulate(525600)
     s1.print_state()
-    reps.append(s1.num_fires)
+    reps.append((s1.num_fires, s1.num_cleanings))
 print()
-print(reps)
-print(sum(reps)/len(reps))
-print(statistics.stdev(reps))
+print([x[0] for x in reps])
+print(sum([x[0] for x in reps])/len([x[0] for x in reps]))
+print(statistics.stdev([x[0] for x in reps]))
+
+print([x[1] for x in reps])
+print(sum([x[1] for x in reps])/len([x[1] for x in reps]))
+print(statistics.stdev([x[1] for x in reps]))
 
 
 
