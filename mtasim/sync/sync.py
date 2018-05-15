@@ -23,6 +23,7 @@ class Station:
         # (1.0/100000000) chosen to yield rate of approximately 1/5
         # i.e. 1 unit of trash arriving every five minutes at the BUSIEST stations
         self.trash_arrival_rate_scalar = 1.0/100000000
+        # TODO: Make trash arrival rate dependent on both annual ridership AND num_track_beds, not just annual ridership
         self.trash_arrival_rate = self.trash_arrival_rate_scalar * annual_ridership
         # Choose fire_arrival_rate_scalar to yield approximately two fires per year at the busiest stations
         self.fire_arrival_rate_scalar = 1.0/1000000000
@@ -103,6 +104,7 @@ class Station:
 
     def recalculate_next_fire_arrival(self):
         # set fire arrival rate based on aggregate trash
+        # TODO: Make trash arrival rate dependent on both annual ridership AND num_track_beds, not just annual ridership
         self.fire_arrival_rate_baseline = self.fire_arrival_rate_scalar * self.aggregate_trash_baseline
         self.fire_arrival_rate_alt = self.fire_arrival_rate_scalar * self.aggregate_trash_alt
         # generate one uniform random variable that will be used to calc the exponential for both sims
@@ -167,14 +169,16 @@ class Station:
                 self.clean_baseline(False)
             elif self.next_fire_arrival_baseline == min(self.next_trash_arrival, self.next_scheduled_cleaning,
                                                 self.next_fire_arrival_baseline, self.next_fire_arrival_alt):
+                nfab = self.next_fire_arrival_baseline
+                nfaa = self.next_fire_arrival_alt
                 time_elapsed = self.next_fire_arrival_baseline
                 self.next_scheduled_cleaning = self.next_scheduled_cleaning - time_elapsed
-                self.next_trash_arrival = self.next_trash_arrival = time_elapsed
+                self.next_trash_arrival = self.next_trash_arrival - time_elapsed
                 self.time = self.time + time_elapsed
                 print("FIRE BASELINE")
                 self.num_fires_baseline = self.num_fires_baseline + 1
-                self.clean_baseline(True)
-                if self.next_fire_arrival_baseline == self.next_fire_arrival_alt:
+                self.clean_baseline(True)  # Note: that this changes self.next_fire_arrival_baseline to infinity
+                if nfab == nfaa:
                     # syncd: fire arrives at both stations
                     print("FIRE ALT")
                     self.num_fires_alt = self.num_fires_alt + 1
@@ -185,7 +189,7 @@ class Station:
             else: # self.next_fire_arrival_alt alone is the min
                 time_elapsed = self.next_fire_arrival_alt
                 self.next_scheduled_cleaning = self.next_scheduled_cleaning - time_elapsed
-                self.next_trash_arrival = self.next_trash_arrival = time_elapsed
+                self.next_trash_arrival = self.next_trash_arrival - time_elapsed
                 self.next_fire_arrival_baseline = self.next_fire_arrival_baseline - time_elapsed
                 self.time = self.time + time_elapsed
                 self.num_fires_alt = self.num_fires_alt + 1
@@ -195,7 +199,8 @@ class Station:
 print("Starting")
 # s1 = Station(40000000, 2, 6000, 30240)
 # s1 = Station(200000, 1, 6000, 30240)
-s1 = Station(20000000, 1, 10000, 60000)
+# s1 = Station(20000000, 1, 10000, 60000)
+s1 = Station(20000000, 1, 6000, 30240)
 # s1 = Station(40000000, 1, 6000, 60000)
 num_reps = 50
 

@@ -4,9 +4,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import statistics
 
-rate = 20000000.0/100000000.0  # 0.2 arrivals of trash per minute
+# rate = 20000000.0/100000000.0  # 0.2 arrivals of trash per minute
 # limit = 60.0  # 60 minutes = 1 hour
-limit = 30240.0  # 30240 minutes = 3 weeks
+# limit = 30240.0  # 30240 minutes = 3 weeks
+
+
+rate = 288  # 288 arrivals of trash per day
+limit = 21  # 21 days = 3 weeks
 
 def generate_three_weeks_of_trash():
     time = 0.0  # start time at 0
