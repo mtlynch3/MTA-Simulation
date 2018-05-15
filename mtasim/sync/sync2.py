@@ -38,7 +38,7 @@ class Station:
         self.maintenance_delay = 0.0
 
         # SPECIFIC: baseline sim
-        self.aggregate_trash_baseline = 0
+        self.aggregate_trash_baseline = 0.0
         self.num_cleanings_baseline = 0
         self.num_scheduled_cleanings = 0
         self.num_fires_baseline = 0
@@ -46,7 +46,7 @@ class Station:
         self.fire_arrival_rate_baseline = 0.0
 
         # SPECIFIC: demand sim
-        self.aggregate_trash_alt = 0
+        self.aggregate_trash_alt = 0.0
         self.num_cleanings_alt = 0
         self.num_threshold_cleanings = 0
         self.num_fires_alt = 0
@@ -58,13 +58,13 @@ class Station:
         self.time = 0.0
 
         # initialize values for baseline sim
-        self.aggregate_trash_baseline = 0
+        self.aggregate_trash_baseline = 0.0
         self.num_cleanings_baseline = 0
         self.num_scheduled_cleanings = 0
         self.num_fires_baseline = 0
 
         # initialize values for alt sim
-        self.aggregate_trash_alt = 0
+        self.aggregate_trash_alt = 0.0
         self.num_cleanings_alt = 0
         self.num_threshold_cleanings = 0
         self.num_fires_alt = 0
@@ -110,18 +110,18 @@ class Station:
         self.next_fire_arrival_uniform = numpy.random.uniform(0.0,1.0)
         # set both sims next fire based on the uniform and their respective levels of aggregate trash
         # or set them to infinity if there is no trash in their station
-        if self.aggregate_trash_baseline == 0:
+        if self.aggregate_trash_baseline == 0.0:
             self.next_fire_arrival_baseline = math.inf
         else:
             self.next_fire_arrival_baseline = (-1.0 / self.fire_arrival_rate_baseline) * math.log(1 - self.next_fire_arrival_uniform)
-        if self.aggregate_trash_alt == 0:
+        if self.aggregate_trash_alt == 0.0:
             self.next_fire_arrival_alt = math.inf
         else:
             self.next_fire_arrival_alt = (-1.0 / self.fire_arrival_rate_alt) * math.log(1 - self.next_fire_arrival_uniform)
 
     def clean_baseline(self, fire):
         self.num_cleanings_baseline = self.num_cleanings_baseline + 1
-        self.aggregate_trash_baseline = 0
+        self.aggregate_trash_baseline = 0.0
         # Include some time delay for the cleaning and add to productivity loss
         # Should depend on if fire == True
         # set new residual clock for baseline_station_reopens
@@ -131,7 +131,7 @@ class Station:
 
     def clean_alt(self, fire):
         self.num_cleanings_alt = self.num_cleanings_alt + 1
-        self.aggregate_trash_alt = 0
+        self.aggregate_trash_alt = 0.0
         # Include some time delay for the cleaning and add to productivity loss
         # Should depend on if fire == True
         # set new residual clock for alt_station_reopense
@@ -150,8 +150,11 @@ class Station:
                 self.next_trash_arrival = random.expovariate(self.trash_arrival_rate)
                 self.time = self.time + time_elapsed
                 # TODO: In future, add check for if station is being cleaned before incrementing aggregate trash
-                self.aggregate_trash_baseline = self.aggregate_trash_baseline + 1
-                self.aggregate_trash_alt = self.aggregate_trash_alt + 1
+                # self.aggregate_trash_baseline = self.aggregate_trash_baseline + 1
+                # self.aggregate_trash_alt = self.aggregate_trash_alt + 1
+                additional_trash = (random.random()+0.5)
+                self.aggregate_trash_baseline = self.aggregate_trash_baseline + additional_trash
+                self.aggregate_trash_alt = self.aggregate_trash_alt + additional_trash
                 if self.aggregate_trash_alt > self.trash_threshold:
                     print("tct: " + str(self.time))
                     self.clean_alt(False)
@@ -199,8 +202,11 @@ print("Starting")
 # s1 = Station(40000000, 2, 6000, 30240)
 # s1 = Station(200000, 1, 6000, 30240)
 # s1 = Station(20000000, 1, 10000, 60000)
-s1 = Station(20000000, 1, 6000, 30240)
 # s1 = Station(40000000, 1, 6000, 60000)
+# s1 = Station(20000000.0, 1.0, 6000, 30240)
+# s1 = Station(40000000.0, 2.0, 6000, 30240)
+# s1 = Station(2000000.0, 1.0, 6000, 250000)
+s1 = Station(3000000.0, 2.0, 6000, 100000)
 num_reps = 50
 
 fires_baseline = []
