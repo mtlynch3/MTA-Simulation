@@ -322,4 +322,113 @@ def run_simulations(annual_ridership, num_track_beds, trash_threshold, cleaning_
 run_simulations(20000000, 1, 2500, 30240, "maintenance")
 
 
+# print("Starting")
+# # s1 = Station(40000000, 2, 6000, 30240)
+# # s1 = Station(200000, 1, 6000, 30240)
+# # s1 = Station(20000000, 1, 10000, 60000)
+# # s1 = Station(20000000, 1, 6048, 30240)
+# # s1 = Station(40000000, 1, 6000, 60000)
+# # s1 = Station(3752400, 1, 1000, 65700)
+# s1 = Station(20000000, 1, 2500, 30240)
+# num_reps = 50
+#
+# print()
+# print("Annual ridership: " + str(s1.annual_ridership))
+# print("Number of Track Beds: " + str(s1.num_track_beds))
+# print("Trash Threshold: " + str(s1.trash_threshold))
+# print("Cleaning Period: " + str(s1.cleaning_rate))
+# print("Trash arrival rate (number of units of trash per minute): " + str(s1.trash_arrival_rate))
+# print("Expected aggregation of trash in 1 cleaning period: " + str(s1.trash_arrival_rate * s1.cleaning_rate))
+# print()
+#
+# fires_baseline = []
+# fires_alt = []
+# cleanings_baseline = []
+# cleanings_alt = []
+# maintenance_cost_baseline = []
+# maintenance_cost_alt = []
+#
+# Z = 1.96  # z-value for interval formula
+#
+# reps = 0
+# while True:
+#     reps = reps + 1
+#     s1.simulate(525600)
+#     s1.print_year_simulation_summary()
+#     fires_baseline.append(s1.num_fires_baseline)
+#     fires_alt.append(s1.num_fires_alt)
+#     cleanings_baseline.append(s1.num_cleanings_baseline)
+#     cleanings_alt.append(s1.num_cleanings_alt)
+#     maintenance_cost_baseline.append(s1.total_maintenance_cost_baseline)
+#     maintenance_cost_alt.append(s1.total_maintenance_cost_alt)
+#     # CI stuff
+#     if reps > 10:
+#         fires_sample_mean_baseline, fires_stddev_baseline, fires_ci_baseline = calculate_confidence_intervals(fires_baseline, reps, Z)
+#         fires_sample_mean_alt, fires_stddev_alt, fires_ci_alt = calculate_confidence_intervals(fires_alt, reps, Z)
+#         print("number of yearlong simulations run: " + str(reps))
+#         print("baseline stddev: " + str(fires_stddev_baseline))
+#         print("baseline fires: " + str(fires_sample_mean_baseline) + " +/- " + str(fires_ci_baseline))
+#         print("alt stddev: " + str(fires_stddev_alt))
+#         print("alt fires: " + str(fires_sample_mean_alt) + " +/- " + str(fires_ci_alt))
+#         print("\n\n\n")
+#         if fires_sample_mean_baseline > fires_sample_mean_alt:
+#             if fires_sample_mean_baseline - fires_ci_baseline > fires_sample_mean_alt + fires_ci_alt:
+#                 print("WINDOWS NO LONGER OVERLAP")
+#                 break
+#         else:
+#             if fires_sample_mean_alt - fires_ci_alt > fires_sample_mean_baseline + fires_ci_baseline:
+#                 print("WINDOWS NO LONGER OVERLAP")
+#                 break
+#     if reps > 50:
+#         break
+#
+#
+# print("\nFires baseline")
+# print(fires_baseline)
+# print(sum(fires_baseline)/len(fires_baseline))
+# print(statistics.stdev(fires_baseline))
+#
+# print("\nFires alt")
+# print(fires_alt)
+# print(sum(fires_alt)/len(fires_alt))
+# print(statistics.stdev(fires_alt))
+#
+# print("\nCleanings baseline")
+# print(cleanings_baseline)
+# print(sum(cleanings_baseline)/len(cleanings_baseline))
+# print(statistics.stdev(cleanings_baseline))
+#
+# print("\nCleanings alt")
+# print(cleanings_alt)
+# print(sum(cleanings_alt)/len(cleanings_alt))
+# print(statistics.stdev(cleanings_alt))
+#
+# print("\nMaintenance baseline")
+# print(maintenance_cost_baseline)
+# print(sum(maintenance_cost_baseline)/len(maintenance_cost_baseline))
+# print(statistics.stdev(maintenance_cost_baseline))
+#
+# print("\nMaintenance alt")
+# print(maintenance_cost_alt)
+# print(sum(maintenance_cost_alt)/len(maintenance_cost_alt))
+# print(statistics.stdev(maintenance_cost_alt))
+
+
+
+# reps = []
+# for i in range(num_reps):
+#     s1.simulate(525600)
+#     s1.print_state()
+#     reps.append((s1.num_fires_baseline, s1.num_cleanings_baseline))
+# print()
+# print([x[0] for x in reps])
+# print(sum([x[0] for x in reps])/len([x[0] for x in reps]))
+# print(statistics.stdev([x[0] for x in reps]))
+#
+# print([x[1] for x in reps])
+# print(sum([x[1] for x in reps])/len([x[1] for x in reps]))
+# print(statistics.stdev([x[1] for x in reps]))
+
+
+
 
