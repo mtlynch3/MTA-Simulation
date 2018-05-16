@@ -111,7 +111,7 @@ class Station:
         print("Alt: Number of threshold cleanings to date:" + str(self.num_threshold_cleanings))
         print("Alt: Number of fires to date:" + str(self.num_fires_alt))
         print("Alt: Total Maintenance Cost:" + str(self.total_maintenance_cost_alt))
-        print("--------------------------------\n\n")
+        print("--------------------------------")
 
     def recalculate_next_fire_arrival(self):
         # set fire arrival rate based on aggregate trash
@@ -226,7 +226,12 @@ cleanings_baseline = []
 cleanings_alt = []
 maintenance_cost_baseline = []
 maintenance_cost_alt = []
+
+Z = 1.96  # z-value for interval formula
+
+reps = 0
 for i in range(num_reps):
+    reps = reps + 1
     s1.simulate(525600)
     s1.print_year_simulation_summary()
     fires_baseline.append(s1.num_fires_baseline)
@@ -235,6 +240,27 @@ for i in range(num_reps):
     cleanings_alt.append(s1.num_cleanings_alt)
     maintenance_cost_baseline.append(s1.total_maintenance_cost_baseline)
     maintenance_cost_alt.append(s1.total_maintenance_cost_alt)
+    # CI stuff
+    if (reps > 10):
+        fires_sample_mean_baseline = sum(fires_baseline)/float(len(fires_baseline))
+        fires_sample_mean_alt = sum(fires_alt)/float(len(fires_alt))
+        fires_stddev_baseline = statistics.stdev(fires_baseline)
+        fires_stddev_alt = statistics.stdev(fires_alt)
+        ci_baseline = (Z * fires_stddev_baseline) / math.sqrt(reps)
+        ci_alt = (Z * fires_stddev_alt) / math.sqrt(reps)
+        print("number of yearlong simulations run: " + str(reps))
+        print("baseline stddev: " + str(fires_stddev_baseline))
+        print("baseline fires: " + str(fires_sample_mean_baseline) + " +/- " + str(ci_baseline))
+        print("alt stddev: " + str(fires_stddev_alt))
+        print("alt fires: " + str(fires_sample_mean_alt) + " +/- " + str(ci_alt))
+        print("\n\n\n")
+        if fires_sample_mean_baseline > fires_sample_mean_alt:
+            if fires_sample_mean_baseline - ci_baseline > fires_sample_mean_alt + ci_alt:
+                print("WINDOWS NO LONGER OVERLAP")
+        else:
+            if fires_sample_mean_alt - ci_alt > fires_sample_mean_baseline + ci_baseline:
+                print("WINDOWS NO LONGER OVERLAP")
+
 
 print("\nFires baseline")
 print(fires_baseline)
