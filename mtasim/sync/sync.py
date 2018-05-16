@@ -22,12 +22,13 @@ class Station:
         # SHARED
         # (1.0/100000000) chosen to yield rate of approximately 1/5
         # i.e. 1 unit of trash arriving every five minutes at the BUSIEST stations
-        self.trash_arrival_rate_scalar = 1.0/190
+        # self.trash_arrival_rate_scalar = 1.0/190
+        self.trash_arrival_rate_scalar = 1.0/380
         number_of_minutes_per_year = 525600
         self.riders_per_minute_per_track = ((annual_ridership/num_track_beds)/number_of_minutes_per_year)
         self.trash_arrival_rate = self.trash_arrival_rate_scalar * self.riders_per_minute_per_track
         # Choose fire_arrival_rate_scalar to yield approximately two fires per year at the busiest stations
-        self.fire_arrival_rate_scalar = 1.0/1000000000
+        self.fire_arrival_rate_scalar = 1.0/100000000
 
         # SHARED
         self.next_fire_arrival_uniform = 0.0
@@ -216,9 +217,20 @@ print("Starting")
 # s1 = Station(40000000, 2, 6000, 30240)
 # s1 = Station(200000, 1, 6000, 30240)
 # s1 = Station(20000000, 1, 10000, 60000)
-s1 = Station(20000000, 1, 5700, 30240)
+# s1 = Station(20000000, 1, 6048, 30240)
 # s1 = Station(40000000, 1, 6000, 60000)
+# s1 = Station(3752400, 1, 1000, 65700)
+s1 = Station(20000000, 1, 2700, 30240)
 num_reps = 50
+
+print()
+print("Annual ridership: " + str(s1.annual_ridership))
+print("Number of Track Beds: " + str(s1.num_track_beds))
+print("Trash Threshold: " + str(s1.trash_threshold))
+print("Cleaning Period: " + str(s1.cleaning_rate))
+print("Trash arrival rate (number of units of trash per minute): " + str(s1.trash_arrival_rate))
+print("Expected aggregation of trash in 1 cleaning period: " + str(s1.trash_arrival_rate * s1.cleaning_rate))
+print()
 
 fires_baseline = []
 fires_alt = []
@@ -230,7 +242,7 @@ maintenance_cost_alt = []
 Z = 1.96  # z-value for interval formula
 
 reps = 0
-for i in range(num_reps):
+while True:
     reps = reps + 1
     s1.simulate(525600)
     s1.print_year_simulation_summary()
@@ -257,9 +269,13 @@ for i in range(num_reps):
         if fires_sample_mean_baseline > fires_sample_mean_alt:
             if fires_sample_mean_baseline - ci_baseline > fires_sample_mean_alt + ci_alt:
                 print("WINDOWS NO LONGER OVERLAP")
+                break
         else:
             if fires_sample_mean_alt - ci_alt > fires_sample_mean_baseline + ci_baseline:
                 print("WINDOWS NO LONGER OVERLAP")
+                break
+    if reps > 50:
+        break
 
 
 print("\nFires baseline")
